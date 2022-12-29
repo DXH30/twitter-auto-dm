@@ -5,7 +5,7 @@ import time
 import tweepy
 import json
 
-from flask import Flask 
+from flask import Flask, request, redirect
 from dotenv import load_dotenv, find_dotenv
 from jinja2 import Environment, FileSystemLoader
 from faker import Faker
@@ -16,12 +16,49 @@ def get_db():
     db = sqlite3.connect('app.db')
     return db
 
+def get_env():
+    environment = Environment(loader=FileSystemLoader("views/"))
+    return environment
+
+@app.route('/login')
+def login():
+    environment = get_env()
+    template = environment.get_template("login.j2")
+    return template.render()
+
 @app.route('/')
 def home():
     """
     This is home page for adding, removing, editting, message that will be broadcasted
     """
-    return "Home page"
+    environment = get_env()
+    template = environment.get_template('home.j2')
+    return template.render()
+
+@app.route('/message_page')
+def message_page():
+    """
+    This is for CRUD message
+    """
+    environment = get_env()
+    db = get_db()
+    sql = ''' SELECT * FROM messages '''
+    cur = db.cursor()
+    cur.execute(sql)
+    db.commit()
+    messages = cur.fetchall()
+    cur.close()
+
+    db = get_db()
+    sql = ''' SELECT * FROM followers '''
+    cur = db.cursor()
+    cur.execute(sql)
+    db.commit()
+    followers = cur.fetchall()
+    cur.close()
+
+    template = environment.get_template('message_page.j2')
+    return template.render(messages=messages, followers=followers)
 
 @app.route('/populate_followers_data')
 def populate_followers_data():
@@ -29,7 +66,7 @@ def populate_followers_data():
     This is for populating user data for development purpose
     """
     db = get_db()
-    
+
     # Initialize tweepy
     consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
     consumer_secret = os.getenv("TWITTER_CONSUMER_SECRET")
@@ -37,7 +74,7 @@ def populate_followers_data():
     access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
     auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
     api = tweepy.API(auth)
-   
+
     # Collect all followers into db
     counter = 0
     for follower in api.get_followers():
@@ -53,6 +90,7 @@ def populate_followers_data():
         db.commit()
         cur.close()
 
+    return redirect("/message_page")
     if counter == 0:
         return "No data inserted"
 
@@ -101,7 +139,9 @@ def store_message():
     db = get_db()
     cur = db.cursor()
     cur.execute(sql, params)
-    return "Store message"
+    db.commit()
+    cur.close()
+    return redirect("/message_page")
 
 @app.route('/message/<id>', methods = ['POST'])
 def edit_message(id):
@@ -122,21 +162,27 @@ def toggle_message(id):
     cur = db.cursor()
     cur.execute(sql, params)
     row = cur.fetchone()
+    print(row)
     activate = row[0]
-    toggling_activate ^= 1
-    sql = ''' UPDATE message SET activate = ? WHERE id = ?'''
-    params = [toggling_activate, id]
+    activate ^= 1
+    print(activate)
+    sql = ''' UPDATE messages SET activate = ? WHERE id = ?'''
+    params = [activate, id]
     cur.execute(sql, params)
-    return "Toggling message"
+    db.commit()
+    cur.close()
+    return redirect("/message_page")
 
 @app.route('/delete_message/<id>')
 def delete_message(id):
     """
     This is endpoint for deletting message
     """
-    sql = ''' DELETE FROM message WHERE id = ?'''
+    sql = ''' DELETE FROM messages WHERE id = ?'''
     params = [id]
     db = get_db()
     cur = db.cursor()
     cur.execute(sql, params)
-    return "Message"
+    db.commit()
+    cur.close()
+    return redirect('/message_page')

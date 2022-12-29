@@ -1,0 +1,98 @@
+{% extends "layouts/base.j2" %}
+
+{% block title %}
+    <title>Message</title>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h1>Message</h1>
+                <p>Edit pesan disini</p>
+                <table class="table" border=1>
+                    <thead>
+                        <tr>
+                            <th>Content</th>
+                            <th>Activation</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    {% for message in messages %}
+                        <tr>
+                            <form action="/message_edit" method="POST">
+                                <td>
+                                    <input type="hidden" name="id" value="{{ message[0] }}" />
+                                    <textarea name="content" class="form-control">{{ message[1] }}</textarea>
+                                </td>
+                                <td>
+                                    {% if message[2] == 1 %}
+                                        <a href="/toggle_message/{{ message[0] }}" class="btn btn-danger">
+                                            Deactive
+                                        </a>
+                                    {% else %}
+                                        <a href="/toggle_message/{{ message[0] }}" class="btn btn-info">
+                                            Activate 
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/delete_message/{{ message[0] }}" class="btn btn-block btn-danger">Hapus</a>
+                                    <input type="submit" class="btn btn-block btn-info" value="Simpan" />
+                                </td>
+                            </form>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <form action="/message" method="POST">
+                            <td>
+                                <textarea name="content" class="form-control"></textarea>
+                            </td>
+                            <td>
+                                -
+                            </td>
+                            <td>
+                                <input type="submit" class="btn btn-block btn-info" value="Simpan" />
+                            </td>
+                        </form>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h1>Followers</h1>
+                <p>This is list of followers</p>
+                <table class="table" border=1>
+                    <thead>
+                        <tr>
+                            <th>Follower ID</th>
+                            <th>Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    {% for follower in followers %}
+                        <tr>
+                            <form action="/message_edit" method="POST">
+                                <td>
+                                    {{ follower[1] }}
+                                </td>
+                                <td>
+                                    @{{ follower[2] }}
+                                </td>
+                                <td>
+                                    <input type="submit" class="btn btn-block btn-info" value="Kirim" />
+                                </td>
+                            </form>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="3">
+                            <a href="/populate_followers_data">
+                                Collect info
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    {% endblock %}
