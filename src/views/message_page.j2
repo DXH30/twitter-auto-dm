@@ -20,9 +20,8 @@
                     </thead>
                     {% for message in messages %}
                         <tr>
-                            <form action="/message_edit" method="POST">
+                            <form action="/message/{{ message[0] }}" method="POST">
                                 <td>
-                                    <input type="hidden" name="id" value="{{ message[0] }}" />
                                     <textarea name="content" class="form-control">{{ message[1] }}</textarea>
                                 </td>
                                 <td>
@@ -59,29 +58,39 @@
                 </table>
             </div>
             <div class="col-md-6">
-                <h1>Followers</h1>
-                <p>This is list of followers</p>
+                <h1>Follower</h1>
+                <p>Daftar follower <a href="/toggle_broadcast">
+                {% if broadcast == 0 %} Aktifkan {% else %} Matikan {% endif %}auto broadcast
+                </a>
+                {{ time_started }} - {{ time_ended }}
+            </p>
                 <table class="table" border=1>
                     <thead>
                         <tr>
                             <th>Follower ID</th>
                             <th>Name</th>
-                            <th>Action</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     {% for follower in followers %}
                         <tr>
-                            <form action="/message_edit" method="POST">
-                                <td>
-                                    {{ follower[1] }}
-                                </td>
-                                <td>
-                                    @{{ follower[2] }}
-                                </td>
-                                <td>
-                                    <input type="submit" class="btn btn-block btn-info" value="Kirim" />
-                                </td>
-                            </form>
+                            <td>
+                                {{ follower[1] }}
+                            </td>
+                            <td>
+                                @{{ follower[2] }}
+                            </td>
+                            <td>
+                                {% if follower[3] == 0 %}
+                                    <a href="/send_message/{{ follower[0] }}" class="btn btn-info">
+                                        Kirim
+                                    </a>
+                                {% else %}
+                                    <a href="/send_message/{{ follower[0] }}" class="btn btn-danger">
+                                        Kirim lagi
+                                    </a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     <tr>
