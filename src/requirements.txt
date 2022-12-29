@@ -28,5 +28,6 @@ SQLAlchemy==1.4.45
 sqlalchemy-seeder==0.3.0
 tweepy==4.12.1
 urllib3==1.26.13
+uWSGI==2.0.21
 Werkzeug==2.2.2
 zipp==3.11.0
