@@ -3,7 +3,7 @@ name: Deploy to my vps
 on:
   push:
     branches:
-      - main_demo
+      - main
 
 jobs:
   deploy-app:
