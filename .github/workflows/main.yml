@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy-app:
-    runs-on: centos-8
+    runs-on: ubuntu-latest
 
     steps:
       - name: Deploy with ssh
