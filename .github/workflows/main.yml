@@ -1,0 +1,23 @@
+name: Deploy to my vps
+
+on:
+  push:
+    branches:
+      - main_demo
+
+jobs:
+  deploy-app:
+    runs-on: centos-8
+
+    steps:
+      - name: Deploy with ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            cd ~/twitter-auto-dm
+            git pull origin main
+            git status
